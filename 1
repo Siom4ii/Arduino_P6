@@ -1,0 +1,65 @@
+// Ultrasonic Motion Tracker
+// Measures Distance, Velocity, and Acceleration
+
+#define TRIG 9
+#define ECHO 10
+
+long duration;
+float distance;
+
+float prevDistance = 0;
+float prevVelocity = 0;
+unsigned long prevTime = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+}
+
+void loop() {
+
+  // --- Trigger an ultrasonic pulse ---
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+
+  // --- Read the echo time ---
+  duration = pulseIn(ECHO, HIGH);
+
+  // Calculate distance in cm
+  distance = duration * 0.034 / 2;
+
+  // Current time in seconds
+  unsigned long currentTime = millis();
+  float dt = (currentTime - prevTime) / 1000.0;
+
+  if (dt > 0) {
+
+    // Velocity (cm/s)
+    float velocity = (distance - prevDistance) / dt;
+
+    // Acceleration (cm/s^2)
+    float acceleration = (velocity - prevVelocity) / dt;
+
+    // --- Print results ---
+    Serial.print("Distance (cm): ");
+    Serial.print(distance);
+
+    Serial.print(" | Velocity (cm/s): ");
+    Serial.print(velocity);
+
+    Serial.print(" | Acceleration (cm/s^2): ");
+    Serial.println(acceleration);
+
+    // Update previous values
+    prevVelocity = velocity;
+    prevDistance = distance;
+  }
+
+  prevTime = currentTime;
+
+  delay(50); // ~20 readings/second
+}
