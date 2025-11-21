@@ -1,0 +1,127 @@
+ULTRASONIC MOTION TRACKER – FULL GUIDE / MANUAL
+1️⃣ What This Project Does
+
+This project uses an HC-SR04 ultrasonic sensor and an Arduino UNO to measure:
+
+Distance
+
+Speed (velocity)
+
+Acceleration
+
+It works by sending out sound waves and timing the echo.
+
+2️⃣ Parts You Need
+
+Arduino UNO
+
+HC-SR04 Ultrasonic Sensor
+
+Jumper wires
+
+USB cable
+
+Breadboard (optional)
+
+Object to track (toy car, block, your hand, etc.)
+
+3️⃣ Wiring Guide
+Connect the ultrasonic sensor like this:
+HC-SR04 Pin	Arduino Pin
+VCC	5V
+GND	GND
+TRIG	Digital Pin 9
+ECHO	Digital Pin 10
+
+Make sure:
+
+VCC is NOT on 3.3V
+
+GND is firmly connected
+
+5️⃣ How to Run It
+
+Connect Arduino to your laptop
+
+Open Arduino IDE
+
+Select:
+
+Tools → Board → Arduino UNO
+
+Tools → Port → (your COM port)
+
+Click Upload
+
+Open Serial Monitor
+
+Set baud rate: 9600
+
+You should now see distance values updating.
+
+6️⃣ Testing the Motion Tracker
+
+Move an object toward or away from the sensor:
+
+If the distance decreases → velocity is negative
+
+If the distance increases → velocity is positive
+
+If speed changes → acceleration is non-zero
+
+Try rolling a car, sliding a block, or dropping an object (not too close).
+
+7️⃣ How to Mount the Sensor
+
+To get stable readings:
+
+Place the sensor at the end of a table or track
+
+Make sure there is nothing near the sides
+
+Object should move straight toward or away from the sensor
+
+Ideal distance range: 5 cm to 150 cm
+
+8️⃣ Safety & Tips
+
+Do not point the sensor at fabric or fuzzy surfaces → bad reflections
+
+Hard surfaces (wood, plastic, cardboard, a cup, etc.) reflect best
+
+Do not place objects closer than 3–5 cm → sensor becomes inaccurate
+
+Keep wires tight and avoid shaking the board
+
+9️⃣ Common Problems + Fixes
+🔴 Problem: Always showing 0 or huge numbers
+
+Fix: ECHO wire or TRIG wire is loose.
+
+🔴 Problem: Numbers jump a lot
+
+Fix:
+
+Aim sensor directly at the object
+
+Use a bigger flat surface as the reflector (cardboard piece)
+
+Keep object centered
+
+🔴 Problem: No output on Serial Monitor
+
+Fix:
+
+Set baud to 9600
+
+COM port might be wrong
+
+🔟 Want a PDF manual or a printed project write-up?
+
+I can generate:
+
+📄 Printable PDF guide
+📘 Full lab report
+📊 Data table sheet
+📈 YouTube-style visual instructions
+🧪 Experiment ideas & graphs
