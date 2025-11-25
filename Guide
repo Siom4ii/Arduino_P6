@@ -1,127 +1,287 @@
-ULTRASONIC MOTION TRACKER – FULL GUIDE / MANUAL
-1️⃣ What This Project Does
+📦 1. COMPONENTS LIST
+Electronics
 
-This project uses an HC-SR04 ultrasonic sensor and an Arduino UNO to measure:
 
-Distance
+Arduino Uno / Nano
 
-Speed (velocity)
 
-Acceleration
+HC-SR04 ultrasonic sensor (front → hand detection)
 
-It works by sending out sound waves and timing the echo.
 
-2️⃣ Parts You Need
+HC-SR04 ultrasonic sensor (top → trash level)
 
-Arduino UNO
 
-HC-SR04 Ultrasonic Sensor
+SG90 / MG90S servo motor
 
-Jumper wires
 
-USB cable
+I2C LCD display (16x2)
 
-Breadboard (optional)
 
-Object to track (toy car, block, your hand, etc.)
+Passive buzzer (important! For Mario melody)
 
-3️⃣ Wiring Guide
-Connect the ultrasonic sensor like this:
-HC-SR04 Pin	Arduino Pin
-VCC	5V
-GND	GND
-TRIG	Digital Pin 9
-ECHO	Digital Pin 10
 
-Make sure:
+Jumper wires (male–male / male–female)
 
-VCC is NOT on 3.3V
 
-GND is firmly connected
+Breadboard
 
-5️⃣ How to Run It
 
-Connect Arduino to your laptop
+5V power source / USB
+
+
+Mechanical
+
+
+Small trash bin with lid
+
+
+Servo mounting bracket OR glue/bolts
+
+
+Sensor holders (optional)
+
+
+
+⚙️ 2. WIRING DIAGRAM
+2.1 Ultrasonic Sensor (Front – hand detector)
+HC-SR04ArduinoVCC5VGNDGNDTRIGD8ECHOD7
+2.2 Ultrasonic Sensor (Top – level detector)
+HC-SR04ArduinoVCC5VGNDGNDTRIGD4ECHOD3
+2.3 Servo Motor
+Servo WireArduinoBrown/BlackGNDRed5VOrangeD9
+2.4 I2C LCD Display
+LCDArduinoVCC5VGNDGNDSDAA4SCLA5
+2.5 Passive Buzzer
+BuzzerArduino+D6–GND
+
+🧠 3. SYSTEM WORKFLOW
+
+
+Front ultrasonic sensor detects your hand
+→ Lid opens
+→ Timer starts
+→ After 3 seconds (no hand) → lid closes
+
+
+Top ultrasonic sensor measures bin depth
+→ Calculates percentage fill
+→ Displays on LCD
+
+
+If fillPercent >= 100%
+→ Plays Super Mario Theme once
+→ LCD shows status
+→ Lid still works normally
+
+
+
+📺 4. LCD DISPLAY OUTPUT
+Line 1:
+Level: 48%
+Line 2:
+Lid: OPEN
+or
+Lid: CLOSED
+
+🎶 5. AUDIO ALERTS
+
+
+Bin Full → Super Mario Theme plays once
+
+
+Sound will not repeat until bin becomes less than 100% full
+
+
+Uses PASSIVE buzzer (tone-capable)
+
+
+If your buzzer is quiet:
+→ You may have ACTIVE buzzer (only beeps, no tones).
+
+🛠️ 6. INSTALLATION STEPS
+Step 1 – Mount the servo
+
+
+Attach servo to bin so it can rotate the lid
+
+
+Adjust angles inside code (LID_OPEN_ANGLE, LID_CLOSED_ANGLE)
+
+
+Step 2 – Mount top ultrasonic
+
+
+Install inside the lid
+
+
+Facing downward
+
+
+Measure BIN_HEIGHT_CM (top → bottom)
+
+
+Step 3 – Mount front ultrasonic
+
+
+Attach outside the bin
+
+
+Pointing forward
+
+
+Height where hand is usually placed
+
+
+Step 4 – Install LCD
+
+
+Put on front panel of bin
+
+
+Secure with screws/glue
+
+
+Step 5 – Connect wires to breadboard
+
+
+Follow wiring table
+
+
+Double-check GND connections
+
+
+
+▶️ 7. UPLOADING THE CODE
+
 
 Open Arduino IDE
 
-Select:
 
-Tools → Board → Arduino UNO
+Install library:
 
-Tools → Port → (your COM port)
 
-Click Upload
+LiquidCrystal_I2C
 
-Open Serial Monitor
 
-Set baud rate: 9600
 
-You should now see distance values updating.
 
-6️⃣ Testing the Motion Tracker
+Select board:
 
-Move an object toward or away from the sensor:
 
-If the distance decreases → velocity is negative
+Tools → Board → Arduino Uno
 
-If the distance increases → velocity is positive
 
-If speed changes → acceleration is non-zero
 
-Try rolling a car, sliding a block, or dropping an object (not too close).
 
-7️⃣ How to Mount the Sensor
+Select port
 
-To get stable readings:
 
-Place the sensor at the end of a table or track
+Paste the combined full code I sent earlier
 
-Make sure there is nothing near the sides
 
-Object should move straight toward or away from the sensor
+Upload
 
-Ideal distance range: 5 cm to 150 cm
 
-8️⃣ Safety & Tips
 
-Do not point the sensor at fabric or fuzzy surfaces → bad reflections
+🧪 8. TESTING PROCEDURE
+Lid Test
 
-Hard surfaces (wood, plastic, cardboard, a cup, etc.) reflect best
 
-Do not place objects closer than 3–5 cm → sensor becomes inaccurate
+Put your hand 10–20 cm in front
 
-Keep wires tight and avoid shaking the board
 
-9️⃣ Common Problems + Fixes
-🔴 Problem: Always showing 0 or huge numbers
+Lid should open
 
-Fix: ECHO wire or TRIG wire is loose.
 
-🔴 Problem: Numbers jump a lot
+Remove hand → closes after 3 seconds
 
-Fix:
 
-Aim sensor directly at the object
+Fill Level Test
 
-Use a bigger flat surface as the reflector (cardboard piece)
 
-Keep object centered
+Place objects inside bin
 
-🔴 Problem: No output on Serial Monitor
 
-Fix:
+LCD % should increase
 
-Set baud to 9600
 
-COM port might be wrong
+Mario Sound Test
 
-🔟 Want a PDF manual or a printed project write-up?
 
-I can generate:
+Fill until sensor detects <5cm
 
-📄 Printable PDF guide
-📘 Full lab report
-📊 Data table sheet
-📈 YouTube-style visual instructions
-🧪 Experiment ideas & graphs
+
+Mario theme should play ONCE
+
+
+Remove trash → sound resets
+
+
+
+❗ 9. TROUBLESHOOTING
+Buzzer very quiet
+
+
+You might be using an active buzzer
+
+
+Solution: replace with passive buzzer
+
+
+Or I can give you "active buzzer" version (beep only)
+
+
+LCD blank
+Try:
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
+
+Servo twitches
+
+
+Use separate 5V power supply for servo
+
+
+Connect grounds together
+
+
+Level reading always 100%
+
+
+Incorrect BIN_HEIGHT_CM
+
+
+Sensor too close to lid
+
+
+Obstructions inside bin
+
+
+Mario song stops other functions
+
+
+Song uses delay
+
+
+Use "non-blocking music player" if needed
+(ask me if you want this upgrade)
+
+
+
+📘 10. MAINTENANCE
+
+
+Keep ultrasonic sensors clean (dust affects readings)
+
+
+Tighten servo mount screws
+
+
+Keep wires away from hinge
+
+
+Replace weak power supplies
+
+
+
+If you want, I can generate a PDF version of this manual, or add images of exact wiring based on your parts.
+Just tell me: "Make it PDF" or "Make wiring diagrams".
