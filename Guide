@@ -1,287 +1,274 @@
-📦 1. COMPONENTS LIST
-Electronics
+Smart Trash Bin project, including:
 
+✔️ Wiring diagrams (with image references)
+✔️ Full system wireframe (architecture)
+✔️ Step-by-step build manual
+✔️ Parts list
+✔️ Mechanical mounting guide
+✔️ Testing checklist
+✔️ Maintenance guide
+
+Everything you need to finalize your project.
+
+📦 1. Parts & Tools You Need
+🔧 Electronics
 
 Arduino Uno / Nano
 
+HC-SR04 Ultrasonic Sensor (Front)
 
-HC-SR04 ultrasonic sensor (front → hand detection)
+HC-SR04 Ultrasonic Sensor (Top)
 
+SG90 / MG90S Servo Motor
 
-HC-SR04 ultrasonic sensor (top → trash level)
+I2C LCD 16×2
 
+Passive Buzzer
 
-SG90 / MG90S servo motor
+LEDs:
 
+1 × Lid Status LED
 
-I2C LCD display (16x2)
+3 × Level LEDs (Green, Yellow, Red)
 
-
-Passive buzzer (important! For Mario melody)
-
-
-Jumper wires (male–male / male–female)
-
+4 × 220Ω resistors
 
 Breadboard
 
+Jumper wires
 
-5V power source / USB
+USB Cable
 
+5V supply (if external)
 
-Mechanical
+🪛 Tools
 
+Screwdriver
 
-Small trash bin with lid
+Hot glue or screws
 
+Small drill (optional)
 
-Servo mounting bracket OR glue/bolts
+Zip ties for cable management
 
+Double-sided tape
 
-Sensor holders (optional)
+🖼️ 2. Complete Wiring Diagram
 
+(These diagrams match your project exactly.)
 
+4
 
-⚙️ 2. WIRING DIAGRAM
-2.1 Ultrasonic Sensor (Front – hand detector)
-HC-SR04ArduinoVCC5VGNDGNDTRIGD8ECHOD7
-2.2 Ultrasonic Sensor (Top – level detector)
-HC-SR04ArduinoVCC5VGNDGNDTRIGD4ECHOD3
-2.3 Servo Motor
-Servo WireArduinoBrown/BlackGNDRed5VOrangeD9
-2.4 I2C LCD Display
-LCDArduinoVCC5VGNDGNDSDAA4SCLA5
-2.5 Passive Buzzer
-BuzzerArduino+D6–GND
+Use the diagram set above as the visual reference for your wiring.
 
-🧠 3. SYSTEM WORKFLOW
+🔌 3. Pin Map (important)
+▶ Ultrasonic – FRONT (hand detector)
+Sensor Pin	Arduino
+VCC	5V
+GND	GND
+TRIG	D8
+ECHO	D7
+▶ Ultrasonic – TOP (level detector)
 
+| Sensor Pin | Arduino |
+| TRIG | D4 |
+| ECHO | D3 |
+| VCC | 5V |
+| GND | GND |
 
-Front ultrasonic sensor detects your hand
-→ Lid opens
-→ Timer starts
-→ After 3 seconds (no hand) → lid closes
+▶ Servo Motor
+Servo Wire	Arduino
+Brown/Black	GND
+Red	5V
+Orange	D9
+▶ I2C LCD
+LCD	Arduino
+VCC	5V
+GND	GND
+SDA	A4
+SCL	A5
+▶ Buzzer (Passive)
+Buzzer Pin	Arduino
++	D6
+–	GND
+▶ LEDs with Resistors
+LED Function	Arduino Pin
+Lid LED	D10
+Level Green	D11
+Level Yellow	D12
+Level Red	D13
 
+Each LED → series 220Ω resistor → Arduino pin → LED (+) → LED (–) → GND
 
-Top ultrasonic sensor measures bin depth
-→ Calculates percentage fill
-→ Displays on LCD
+🧠 4. System Wireframe (How Everything Works)
+          ┌─────────────────────┐
+          │      FRONT SENSOR   │
+          │   (Hand Detector)   │
+          └───────┬─────────────┘
+                  │ Distance
+                  ▼
+      ┌─────────────────────────────┐
+      │         ARDUINO             │
+      │   (Decision & Control)      │
+      ├──────────┬──────────┬───────┤
+      │          │          │       │
+      ▼          ▼          ▼       ▼
+ TOP SENSOR   SERVO    BUZZER     LCD
+(Level)      (Lid)     (Alerts)   (Info)
+      │
+      ▼
+ LEDs (Level indication)
 
+🛠️ 5. Step-by-Step Build Manual
+Step 1 — Mount the Lid Servo
 
-If fillPercent >= 100%
-→ Plays Super Mario Theme once
-→ LCD shows status
-→ Lid still works normally
+Attach the servo near the hinge
 
+Use a servo horn to push/lift the lid
 
+Test angles using simple servo sweep code first
 
-📺 4. LCD DISPLAY OUTPUT
-Line 1:
-Level: 48%
-Line 2:
-Lid: OPEN
-or
+Tighten screws so the servo does not wobble
+
+Step 2 — Install the Top Ultrasonic Sensor
+
+Mount inside the lid
+
+Must face straight down
+
+Measure distance from sensor to bin floor → update BIN_HEIGHT_CM
+
+Step 3 — Install the Front Ultrasonic Sensor
+
+Mount on the bin front
+
+Height: around your hand level
+
+Angle: facing outward, not downward
+
+Step 4 — Mount LCD
+
+Use screws or glue
+
+Orient so text is readable at standing height
+
+Step 5 — Install LEDs
+
+Drill small holes for LEDs
+
+Or mount them on the lid panel
+
+Ensure resistors are in series
+
+Step 6 — Install Buzzer
+
+Mount near a ventilation hole
+
+Must not be blocked to keep sound loud
+
+Step 7 — Wire Everything
+
+Follow the wiring table & diagrams
+
+Keep ground wires common
+
+Zip-tie wires to avoid tangling
+
+Step 8 — Upload Code
+
+Paste the full code you already have
+
+Install LiquidCrystal_I2C library
+
+Set correct LCD address (0x27 or 0x3F)
+
+🧪 6. Testing Checklist
+✔ Sensor Testing
+
+Move hand in front → distance should decrease
+
+Add object inside bin → top sensor should measure correctly
+
+✔ Servo Testing
+
+Hand must stay for required time (800ms default)
+
+Servo opens smoothly
+
+Closes after 3 seconds
+
+✔ Level Detection
+
+Add trash gradually
+
+Check LCD percentage updates correctly
+
+✔ Buzzer Test
+
+Simulate full bin by covering top sensor
+
+Buzzer should beep repeatedly
+
+✔ LED Tests
+
+Green LED (<80%)
+
+Yellow LED (80–99%)
+
+Red LED (100%)
+
+Lid LED on only when lid is open
+
+📟 7. LCD Interface Guide
+
+Normal Mode
+
+Level: 45%
 Lid: CLOSED
 
-🎶 5. AUDIO ALERTS
 
+Hand detected & opening
 
-Bin Full → Super Mario Theme plays once
+Level: 45%
+Lid: OPEN
 
 
-Sound will not repeat until bin becomes less than 100% full
+Full bin (100%)
 
+Level:100%
+Lid: CLOSED
 
-Uses PASSIVE buzzer (tone-capable)
 
+Add-ons available:
 
-If your buzzer is quiet:
-→ You may have ACTIVE buzzer (only beeps, no tones).
+“FULL – CAN’T OPEN”
 
-🛠️ 6. INSTALLATION STEPS
-Step 1 – Mount the servo
+Blinking warning message
 
+Large digits
 
-Attach servo to bin so it can rotate the lid
+⚠️ 8. Safety / Design Tips
 
+Never force the servo by hand → gears break
 
-Adjust angles inside code (LID_OPEN_ANGLE, LID_CLOSED_ANGLE)
+Keep ultrasonic sensors clean
 
+Do not put heavy trash directly on top sensor
 
-Step 2 – Mount top ultrasonic
+Keep wires away from servo arm
 
+Use external 5V supply if servo draws too much power
 
-Install inside the lid
+Add rubber feet to reduce vibration
 
+🧼 9. Maintenance Tips
 
-Facing downward
+Clean ultrasonic sensor holes weekly
 
+Recalibrate BIN_HEIGHT_CM if bin layout changes
 
-Measure BIN_HEIGHT_CM (top → bottom)
+Tighten servo mounts monthly
 
+Check for loose jumper wires
 
-Step 3 – Mount front ultrasonic
-
-
-Attach outside the bin
-
-
-Pointing forward
-
-
-Height where hand is usually placed
-
-
-Step 4 – Install LCD
-
-
-Put on front panel of bin
-
-
-Secure with screws/glue
-
-
-Step 5 – Connect wires to breadboard
-
-
-Follow wiring table
-
-
-Double-check GND connections
-
-
-
-▶️ 7. UPLOADING THE CODE
-
-
-Open Arduino IDE
-
-
-Install library:
-
-
-LiquidCrystal_I2C
-
-
-
-
-Select board:
-
-
-Tools → Board → Arduino Uno
-
-
-
-
-Select port
-
-
-Paste the combined full code I sent earlier
-
-
-Upload
-
-
-
-🧪 8. TESTING PROCEDURE
-Lid Test
-
-
-Put your hand 10–20 cm in front
-
-
-Lid should open
-
-
-Remove hand → closes after 3 seconds
-
-
-Fill Level Test
-
-
-Place objects inside bin
-
-
-LCD % should increase
-
-
-Mario Sound Test
-
-
-Fill until sensor detects <5cm
-
-
-Mario theme should play ONCE
-
-
-Remove trash → sound resets
-
-
-
-❗ 9. TROUBLESHOOTING
-Buzzer very quiet
-
-
-You might be using an active buzzer
-
-
-Solution: replace with passive buzzer
-
-
-Or I can give you "active buzzer" version (beep only)
-
-
-LCD blank
-Try:
-LiquidCrystal_I2C lcd(0x3F, 16, 2);
-
-Servo twitches
-
-
-Use separate 5V power supply for servo
-
-
-Connect grounds together
-
-
-Level reading always 100%
-
-
-Incorrect BIN_HEIGHT_CM
-
-
-Sensor too close to lid
-
-
-Obstructions inside bin
-
-
-Mario song stops other functions
-
-
-Song uses delay
-
-
-Use "non-blocking music player" if needed
-(ask me if you want this upgrade)
-
-
-
-📘 10. MAINTENANCE
-
-
-Keep ultrasonic sensors clean (dust affects readings)
-
-
-Tighten servo mount screws
-
-
-Keep wires away from hinge
-
-
-Replace weak power supplies
-
-
-
-If you want, I can generate a PDF version of this manual, or add images of exact wiring based on your parts.
-Just tell me: "Make it PDF" or "Make wiring diagrams".
+Keep LCD covered from dust
