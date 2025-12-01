@@ -1,0 +1,62 @@
+SMART TRASH BIN – COMPLETE MANUAL
+1. COMPONENTS LIST
+Electronics:
+- Arduino Uno/Nano
+- HC-SR04 Ultrasonic Sensors (Front and Top)
+- SG90/MG90S Servo Motor
+- I2C LCD 16x2
+- Passive Buzzer
+- LEDs: Lid status + Level indication (Green/Yellow/Red)
+- Resistors 220Ω
+- Breadboard, wires, USB cable
+Mechanical:
+- Small trash bin with lid
+- Servo mount, glue/screws, brackets
+2. SYSTEM WIRING
+Ultrasonic Front:
+- VCC → 5V, GND → GND, TRIG → D8, ECHO → D7
+Ultrasonic Top:
+- VCC → 5V, GND → GND, TRIG → D4, ECHO → D3
+Servo:
+- Red → 5V, Brown → GND, Orange → D9
+LCD I2C:
+- VCC → 5V, GND → GND, SDA → A4, SCL → A5
+Buzzer:
+- + → D6, – → GND
+LEDs:
+- Lid LED → D10 (via 220Ω)
+- Green LED → D11 (via 220Ω)
+- Yellow LED → D12 (via 220Ω)
+- Red LED → D13 (via 220Ω)
+3. SYSTEM OPERATION
+- Front sensor detects hand, requiring hold time before opening lid.
+- Top sensor measures fill level.
+- Lid servo opens and auto closes after timer.
+- LEDs indicate level status.
+- Buzzer alerts at 100% full.
+- LCD displays real-time information.
+4. SOFTWARE LOGIC
+- Hand must stay detected for HAND_REQUIRED_TIME.
+- Lid will not open when bin is full.
+- Buzzer beeps in pattern when full.
+- Fill percentage calculated from BIN_HEIGHT_CM.
+- Non-blocking timers ensure smooth operation.
+5. SAFETY & MAINTENANCE
+- Do not force servo manually.
+- Keep ultrasonic sensors clean.
+- Recheck wiring periodically.
+- Ensure stable 5V supply.
+- Use cable ties to avoid wire tangling.
+6. TESTING CHECKLIST
+- Hand detection distance test
+- Lid opening/closing test
+- Fill-level percentage test
+- LED function test
+- Buzzer full-level alert test
+- LCD visibility and clarity check
+7. TROUBLESHOOTING
+- LCD blank → try address 0x27 or 0x3F
+- Servo jitter → use external 5V supply
+- Wrong readings → clean sensors
+- Buzzer quiet → ensure passive buzzer
+END OF MANUAL
