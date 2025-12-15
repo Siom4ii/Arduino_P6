@@ -2,45 +2,38 @@
 #include <LiquidCrystal_I2C.h>
 
 // -------- PIN DEFINITIONS --------
-#define TRIG_FRONT 8    // Ultrasonic #1 (front for hand detection)
+#define TRIG_FRONT 8   // Ultrasonic #1 (front for hand detection)
 #define ECHO_FRONT 7
 
-#define TRIG_TOP   4    // Ultrasonic #2 (inside bin for fill level)
+#define TRIG_TOP   4   // Ultrasonic #2 (inside bin for fill level)
 #define ECHO_TOP   3
 
-#define SERVO_PIN  9    // Servo for lid
-#define BUZZER_PIN 6    // NORMAL buzzer (ON/OFF beep)
+#define SERVO_PIN  9   // Servo for lid
+#define BUZZER_PIN 6   // Buzzer pin
 
 // -------- CONFIGURABLE CONSTANTS --------
-#define OPEN_DISTANCE 20
-#define LID_CLOSED_ANGLE 0
-#define LID_OPEN_ANGLE   90
-#define BIN_HEIGHT_CM    40
+#define OPEN_DISTANCE 20       // cm: distance to detect hand
+#define LID_CLOSED_ANGLE 0     // adjust for your servo
+#define LID_OPEN_ANGLE   90    // adjust for your servo
+#define BIN_HEIGHT_CM    40    // cm: measure inside height of your trash bin
 
-const unsigned long LID_DELAY = 3000;          // lid stays open
-const unsigned long HAND_REQUIRED_TIME = 800;  // ms hand must stay
+const unsigned long LID_DELAY = 3000; // 3 seconds lid stays open
 
 // -------- OBJECTS --------
 Servo lidServo;
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // If LCD shows nothing, change to 0x3F
 
 // -------- GLOBAL VARIABLES --------
 int distanceFront = 0;
 int distanceTop   = 0;
 int fillPercent   = 0;
-
 bool lidOpen = false;
-bool handStillThere = false;
 
-unsigned long lidOpenTime    = 0;
-unsigned long handDetectTime = 0;
+unsigned long lidOpenTime = 0;
 
-// To avoid buzzer repeating too fast
-unsigned long lastBeepTime = 0;
+// -------- FUNCTIONS --------
 
-
-// -------- HELPER FUNCTIONS --------
-
+// Generic ultrasonic distance sensor
 int getDistance(int trigPin, int echoPin) {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -49,12 +42,17 @@ int getDistance(int trigPin, int echoPin) {
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
 
-  long duration = pulseIn(echoPin, HIGH, 30000); 
-  if (duration == 0) return 999;
+  long duration = pulseIn(echoPin, HIGH, 30000); // timeout
 
-  return duration * 0.034 / 2;
+  if (duration == 0) {
+    return 999; // no echo
+  }
+
+  int dist = duration * 0.034 / 2;
+  return dist;
 }
 
+// Compute fill level %
 int computeFillPercent(int distTop) {
   if (distTop <= 0 || distTop > BIN_HEIGHT_CM + 20) return 0;
   if (distTop < 5) return 100;
@@ -67,7 +65,6 @@ int computeFillPercent(int distTop) {
 
   return (int)pct;
 }
-
 
 // -------- SETUP --------
 void setup() {
@@ -88,15 +85,18 @@ void setup() {
   lcd.init();
   lcd.backlight();
   lcd.clear();
+  lcd.setCursor(0, 0);
   lcd.print("Smart Trash Bin");
+  lcd.setCursor(0, 1);
+  lcd.print("Starting...");
   delay(2000);
   lcd.clear();
-}
 
+  Serial.println("System Ready.");
+}
 
 // -------- MAIN LOOP --------
 void loop() {
-
   unsigned long currentTime = millis();
 
   // 1) Read sensors
@@ -104,71 +104,56 @@ void loop() {
   distanceTop   = getDistance(TRIG_TOP, ECHO_TOP);
   fillPercent   = computeFillPercent(distanceTop);
 
-  Serial.print("Front:");
+  // Debug output
+  Serial.print("Front: ");
   Serial.print(distanceFront);
-  Serial.print(" | Top:");
+  Serial.print(" | Top: ");
   Serial.print(distanceTop);
-  Serial.print(" | Fill:");
+  Serial.print(" | Fill: ");
   Serial.print(fillPercent);
   Serial.println("%");
 
-
-  // ----- SMART HAND-DETECTION WITH REQUIRED HOLD TIME -----
-  bool handDetected = (distanceFront > 0 && distanceFront < OPEN_DISTANCE);
-
-  if (handDetected && fillPercent < 100) {
-
-    if (!handStillThere) {
-      handStillThere = true;
-      handDetectTime = currentTime;
-      Serial.println("Hand detected, starting timer…");
+  // 2) Smart lid logic (non-blocking)
+  if (distanceFront > 0 && distanceFront < OPEN_DISTANCE) {
+    if (!lidOpen) {
+      Serial.println("Opening lid...");
+      lidServo.write(LID_OPEN_ANGLE);
+      lidOpen = true;
     }
-
-    if (handStillThere && (currentTime - handDetectTime >= HAND_REQUIRED_TIME)) {
-      if (!lidOpen) {
-        Serial.println("Hand stable → Opening lid");
-        lidServo.write(LID_OPEN_ANGLE);
-        lidOpen = true;
-      }
-      lidOpenTime = currentTime;
-    }
-
-  } else {
-    handStillThere = false;
+    lidOpenTime = currentTime;
   }
 
-
-  // ----- AUTO CLOSE AFTER TIME -----
   if (lidOpen && (currentTime - lidOpenTime >= LID_DELAY)) {
     Serial.println("Closing lid...");
     lidServo.write(LID_CLOSED_ANGLE);
     lidOpen = false;
   }
 
-
-  // ----- BUZZER ALERT WHEN FULL -----
-  // Uses non-blocking fast beeps
+  // 3) FAST-BEEP BUZZER (Option A)
+  // Beep ON 200ms, OFF 200ms
   if (fillPercent >= 100) {
-    if ((currentTime - lastBeepTime) > 200) {   // beep every 200 ms
-      digitalWrite(BUZZER_PIN, !digitalRead(BUZZER_PIN));
-      lastBeepTime = currentTime;
+    if ((currentTime / 200) % 2 == 0) {
+      digitalWrite(BUZZER_PIN, HIGH);
+    } else {
+      digitalWrite(BUZZER_PIN, LOW);
     }
   } else {
-    digitalWrite(BUZZER_PIN, LOW);  // buzzer off if not full
+    digitalWrite(BUZZER_PIN, LOW);
   }
 
-
-  // ----- LCD OUTPUT -----
+  // 4) LCD Updates
   lcd.setCursor(0, 0);
-  lcd.print("Level: ");
-  if (fillPercent < 10) lcd.print("  ");
+  lcd.print("Level:");
+
+  if (fillPercent < 10)       lcd.print("  ");
   else if (fillPercent < 100) lcd.print(" ");
   lcd.print(fillPercent);
   lcd.print("%   ");
 
   lcd.setCursor(0, 1);
   lcd.print("Lid: ");
-  lcd.print(lidOpen ? "OPEN  " : "CLOSED");
+  if (lidOpen) lcd.print("OPEN  ");
+  else         lcd.print("CLOSED");
 
-  delay(120);
+  delay(150);
 }
